@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #define NUMBER_OF_CARDS 52
 #define NUMBER_OF_COLORS 4
@@ -29,9 +30,9 @@ void shuffle(int t[], int size)
 
 int take_card(int player[], int first_card, int card, int *len)
 {
-	int id = (int)(first_card + len) % NUMBER_OF_CARDS;
+	int id = (first_card + *len) % NUMBER_OF_CARDS;
 	player[id] = card;
-	len++;
+	*len = *len + 1;
 }
 
 int use_card(int player[], int *first_card, int *len)
@@ -54,25 +55,83 @@ void game(int n, int player_A[], int player_B[], int max_conflicts, int simplifi
 
 		break;
 	case 1: // uproszczona
+		// for (int i = 0; i < len_a; i++)
+		// 	printf("%d ", player_A[(first_card_a + i) % NUMBER_OF_CARDS] / 4);
+		// printf("\n");
+		// for (int i = 0; i < len_b; i++)
+		// 	printf("%d ", player_B[(first_card_b + i) % NUMBER_OF_CARDS] / 4);
+		// printf("\n");
 		while (conflicts < max_conflicts && len_a > 0 && len_b > 0)
 		{
 			int a = use_card(player_A, &first_card_a, &len_a);
 			int b = use_card(player_B, &first_card_b, &len_b);
+			// printf("\n a = %d, b = %d \n", a / 4, b / 4);
+			if (a / 4 < b / 4)
+			{
+				take_card(player_B, first_card_b, b, &len_b);
+				take_card(player_B, first_card_b, a, &len_b);
+				// printf("After fight A\n");
+				// for (int i = 0; i < len_a; i++)
+				// 	printf("%d ", player_A[(first_card_a + i) % NUMBER_OF_CARDS] / 4);
+				// printf("\n");
+				// printf("After fight B\n");
+				// for (int i = 0; i < len_b; i++)
+				// 	printf("%d ", player_B[(first_card_b + i) % NUMBER_OF_CARDS] / 4);
+				// printf("\n");
+			}
+			else if (a / 4 > b / 4)
+			{
+				take_card(player_A, first_card_a, a, &len_a);
+				take_card(player_A, first_card_a, b, &len_a);
+				// printf("After fight A\n");
+				// for (int i = 0; i < len_a; i++)
+				// 	printf("%d ", player_A[(first_card_a + i) % NUMBER_OF_CARDS] / 4);
+				// printf("\n");
+				// printf("After fight B\n");
+				// for (int i = 0; i < len_b; i++)
+				// 	printf("%d ", player_B[(first_card_b + i) % NUMBER_OF_CARDS] / 4);
+				// printf("\n");
+			}
+			else
+			{
+				take_card(player_B, first_card_b, b, &len_b);
+				take_card(player_A, first_card_a, a, &len_a);
+			}
+			conflicts++;
 		}
-
 		break;
 	default:
 		break;
 	}
+	if (len_b == 0)
+		printf("2 %d", conflicts);
+	else if (len_a == 0)
+	{
+		printf("3\n");
+		for (int i = 0; i < len_b; i++)
+			printf("%d ", player_B[i]);
+	}
+	else
+		printf("0 %d %d", len_a, len_b);
+
+	// printf("\n-----------------\n");
+	// for (int i = 0; i < len_a; i++)
+	// 	printf("%d ", player_A[i] / 4);
+	// printf("\n");
+	// for (int i = 0; i < len_b; i++)
+	// 	printf("%d ", player_B[i] / 4);
+	// printf("\n");
+	return;
 }
-void first_takes_cards(int number_of_cards_on_table, int player_1[], int *pout_1, int *p_cards_1,
-					   const int player_2[], int *pout_2, int *p_cards_2, int size)
-{
-}
-void both_take_cards(int player_1[], int *pout_1, const int *p_cards_1,
-					 int player_2[], int *pout_2, const int *p_cards_2, int size)
-{
-}
+
+// void first_takes_cards(int number_of_cards_on_table, int player_1[], int *pout_1, int *p_cards_1,
+// 					   const int player_2[], int *pout_2, int *p_cards_2, int size)
+// {
+// }
+// void both_take_cards(int player_1[], int *pout_1, const int *p_cards_1,
+// 					 int player_2[], int *pout_2, const int *p_cards_2, int size)
+// {
+// }
 
 int main(void)
 {
