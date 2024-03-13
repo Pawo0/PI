@@ -100,7 +100,7 @@ int cbuff_pop(void) { // longest waiting client leaves the queue
 	if (len == 0) return UNDERFLOW;
 	len--;
 	int res = cbuff[out];
-	out = (out+1)%10;
+	out = (out+1)%CBUFF_SIZE;
 	return res;
 }
 
