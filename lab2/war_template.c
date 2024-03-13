@@ -43,24 +43,77 @@ int use_card(int player[], int *first_card, int *len)
 	return res;
 }
 
+// void print_status(int player_A[], int player_B[], int len_a, int len_b, int first_card_a, int first_card_b)
+// {
+// 	printf("\nA Cards\n");
+// 	for (int i = 0; i < len_a; i++)
+// 		printf("%d ", player_A[(first_card_a + i) % NUMBER_OF_CARDS] / 4);
+// 	printf("\n");
+// 	printf("B Cards\n");
+// 	for (int i = 0; i < len_b; i++)
+// 		printf("%d ", player_B[(first_card_b + i) % NUMBER_OF_CARDS] / 4);
+// 	printf("\n");
+// }
+
 void game(int n, int player_A[], int player_B[], int max_conflicts, int simplified_mode)
 {
 	int conflicts = 0;
 	int first_card_a = 0, first_card_b = 0;
 	int len_a = NUMBER_OF_CARDS / 2, len_b = NUMBER_OF_CARDS / 2;
+	// print_status(player_A, player_B, len_a, len_b, first_card_a, first_card_b);
 
 	switch (simplified_mode)
 	{
 	case 0: // standardowa
+		while (conflicts < max_conflicts && len_a > 0 && len_b > 0)
+		{
+			int cards_a[NUMBER_OF_CARDS / 2];
+			int cards_b[NUMBER_OF_CARDS / 2];
+			int i = 0, war_time = 0;
+			do
+			{
+				cards_a[i] = use_card(player_A, &first_card_a, &len_a);
+				cards_b[i] = use_card(player_B, &first_card_b, &len_b);
+				if (war_time >= 1 && (len_a < 0 || len_b < 0))
+				{
+					printf("1 %d %d", len_a + war_time + 1, len_b + war_time + 1);
+					return;
+				}
+				conflicts++;
+				war_time++;
+				i++;
+			} while ((war_time % 2 == 0) || (cards_a[i - 1] / 4 == cards_b[i - 1] / 4));
+
+			// ----------------------------
+			// printf("\n\na: ");
+			// for (int k = 0; k < war_time; k++)
+			// 	printf("%d, ", cards_a[k] / 4);
+			// printf("\nb: ");
+			// for (int k = 0; k < war_time; k++)
+			// 	printf("%d, ", cards_b[k] / 4);
+			// ----------------------------
+
+			if (cards_a[i - 1] / 4 > cards_b[i - 1] / 4)
+			{
+				for (int j = 0; j < war_time; j++)
+					take_card(player_A, first_card_a, cards_a[j], &len_a);
+				for (int j = 0; j < war_time; j++)
+					take_card(player_A, first_card_a, cards_b[j], &len_a);
+				// print_status(player_A, player_B, len_a, len_b, first_card_a, first_card_b);
+			}
+
+			else if (cards_a[i - 1] / 4 < cards_b[i - 1] / 4)
+			{
+				for (int j = 0; j < war_time; j++)
+					take_card(player_B, first_card_b, cards_b[j], &len_b);
+				for (int j = 0; j < war_time; j++)
+					take_card(player_B, first_card_b, cards_a[j], &len_b);
+				// print_status(player_A, player_B, len_a, len_b, first_card_a, first_card_b);
+			}
+		}
 
 		break;
 	case 1: // uproszczona
-		// for (int i = 0; i < len_a; i++)
-		// 	printf("%d ", player_A[(first_card_a + i) % NUMBER_OF_CARDS] / 4);
-		// printf("\n");
-		// for (int i = 0; i < len_b; i++)
-		// 	printf("%d ", player_B[(first_card_b + i) % NUMBER_OF_CARDS] / 4);
-		// printf("\n");
 		while (conflicts < max_conflicts && len_a > 0 && len_b > 0)
 		{
 			int a = use_card(player_A, &first_card_a, &len_a);
@@ -70,32 +123,25 @@ void game(int n, int player_A[], int player_B[], int max_conflicts, int simplifi
 			{
 				take_card(player_B, first_card_b, b, &len_b);
 				take_card(player_B, first_card_b, a, &len_b);
-				// printf("After fight A\n");
-				// for (int i = 0; i < len_a; i++)
-				// 	printf("%d ", player_A[(first_card_a + i) % NUMBER_OF_CARDS] / 4);
-				// printf("\n");
-				// printf("After fight B\n");
-				// for (int i = 0; i < len_b; i++)
-				// 	printf("%d ", player_B[(first_card_b + i) % NUMBER_OF_CARDS] / 4);
-				// printf("\n");
+				// ------------------
+				// printf("\n\nB won\n");
+				// print_status(player_A, player_B, len_a, len_b, first_card_a, first_card_b);
 			}
 			else if (a / 4 > b / 4)
 			{
 				take_card(player_A, first_card_a, a, &len_a);
 				take_card(player_A, first_card_a, b, &len_a);
-				// printf("After fight A\n");
-				// for (int i = 0; i < len_a; i++)
-				// 	printf("%d ", player_A[(first_card_a + i) % NUMBER_OF_CARDS] / 4);
-				// printf("\n");
-				// printf("After fight B\n");
-				// for (int i = 0; i < len_b; i++)
-				// 	printf("%d ", player_B[(first_card_b + i) % NUMBER_OF_CARDS] / 4);
-				// printf("\n");
+				// ------------------
+				// printf("\n\nA won\n");
+				// print_status(player_A, player_B, len_a, len_b, first_card_a, first_card_b);
 			}
 			else
 			{
 				take_card(player_B, first_card_b, b, &len_b);
 				take_card(player_A, first_card_a, a, &len_a);
+				// ------------------
+				// printf("\n\nremis\n");
+				// print_status(player_A, player_B, len_a, len_b, first_card_a, first_card_b);
 			}
 			conflicts++;
 		}
@@ -113,11 +159,11 @@ void game(int n, int player_A[], int player_B[], int max_conflicts, int simplifi
 	}
 	else
 		printf("0 %d %d", len_a, len_b);
-
-	// printf("\n-----------------\n");
+	// ------------------
+	// printf("\n-----------------\nA:\n");
 	// for (int i = 0; i < len_a; i++)
 	// 	printf("%d ", player_A[i] / 4);
-	// printf("\n");
+	// printf("\nB:\n");
 	// for (int i = 0; i < len_b; i++)
 	// 	printf("%d ", player_B[i] / 4);
 	// printf("\n");
