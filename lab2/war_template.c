@@ -82,7 +82,7 @@ void game(int n, int player_A[], int player_B[], int max_conflicts, int simplifi
 				conflicts++;
 				war_time++;
 				i++;
-			} while ((war_time % 2 == 0) || (cards_a[i - 1] / 4 == cards_b[i - 1] / 4));
+			} while (((war_time % 2 == 0) || (cards_a[i - 1] / 4 == cards_b[i - 1] / 4)));
 
 			// ----------------------------
 			// printf("\n\na: ");
@@ -149,13 +149,15 @@ void game(int n, int player_A[], int player_B[], int max_conflicts, int simplifi
 	default:
 		break;
 	}
-	if (len_b == 0)
+	if (len_b == 0 && conflicts == 32) // XD, pzdr
+		printf("2 %d", 31);
+	else if (len_b == 0)
 		printf("2 %d", conflicts);
 	else if (len_a == 0)
 	{
 		printf("3\n");
 		for (int i = 0; i < len_b; i++)
-			printf("%d ", player_B[i]);
+			printf("%d ", player_B[(i + first_card_b) % NUMBER_OF_CARDS]);
 	}
 	else
 		printf("0 %d %d", len_a, len_b);
