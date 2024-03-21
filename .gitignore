@@ -55,4 +55,5 @@ dkms.conf
 .vscode/
 output/
 build/
+.idea/
 >>>>>>> master
