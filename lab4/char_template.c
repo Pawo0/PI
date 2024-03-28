@@ -170,13 +170,14 @@ void find_comments(int *line_comment_counter, int *block_comment_counter) {
 
             last_char = 0;
             change_last = 0;
-        } else if (last_char == '/' && digit == '*' && find_block_close == 0 && open_comment == 0) { // "/*" start
-            find_block_close = 1;
+        } else if (last_char == '/' && digit == '*') { // "/*" start
+            find_block_close += 1;
             open_comment = 1;
-        } else if (last_char == '*' && digit == '/' && find_block_close == 1) { // "*/" close
-            *block_comment_counter = *block_comment_counter + 1;
-            find_block_close = 0;
-            open_comment = 0;
+        } else if (last_char == '*' && digit == '/' && find_block_close >= 1) { // "*/" close
+            if (--find_block_close == 0){
+                *block_comment_counter = *block_comment_counter + 1;
+                open_comment = 0;
+            }
 
             last_char = 0;
             change_last = 0;
