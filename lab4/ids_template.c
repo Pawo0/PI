@@ -11,9 +11,6 @@
 #define MAX_ID_LEN 64
 #define MAX_IDS 1024
 
-int index_cmp(const void *, const void *);
-
-int cmp(const void *, const void *);
 
 char identifiers[MAX_IDS][MAX_ID_LEN];
 
@@ -59,6 +56,7 @@ int find_idents() {
     int quote = 0;
     int open_quote = 0;
 
+    int start_with_number = 0;
     char string[MAX_ID_LEN];
     while ((digit = getc(stdin)) != EOF) {
         int change_last = 1;
@@ -102,19 +100,25 @@ int find_idents() {
                 open_comment = 0;
                 lin_comm = 0;
             }
+
+
             if (open_comment == 0 && last_char != 92) { // 92 = "\"
-                if (i == 0 && ((digit >= 'a' && digit <= 'z') || (digit >= 'A' && digit <= 'Z') || digit == '_')) { // starts with a letter
+                if (i == 0 && isdigit(digit)){
+                    string[i] = (char) digit;
+                    start_with_number = 1;
+                }else if (i == 0 && (isalpha(digit) || digit == '_')) { // starts with a letter
                     string[i] = (char) digit;
                     i++;
-                } else if (i > 0 && ((digit >= 'a' && digit <= 'z') || (digit >= 'A' && digit <= 'Z') || (digit >= '0' && digit <= '9') || digit == '_')) {
+                } else if (i > 0 && (isalnum(digit) || digit == '_')) {
                     string[i] = (char) digit;
                     i++;
                 } else {
-                    if (unique((char *) string, id_checked) == 1 && i > 0) { // if string appears first time
+                    if (unique((char *) string, id_checked) == 1 && i > 0 && start_with_number == 0) { // if string appears first time
                         sprintf(identifiers[id_checked], "%s", string);
                         id_checked++;
                     }
 
+                    start_with_number = 0;
                     i = 0;
                     memset(string, 0, sizeof(string));
                 }
@@ -124,24 +128,14 @@ int find_idents() {
         if (change_last == 1) last_char = digit;
         else last_char = 0;
     }
-    for (int j = 0; j < id_checked; ++j) {
-        printf("%s, ", identifiers[j]);
-    }
+
+    /* Print all founded IDs */
+//    for (int j = 0; j < id_checked; ++j) printf("%s, ", identifiers[j]);
+
     return id_checked;
 
 }
 
-int cmp(const void *first_arg, const void *second_arg) {
-    char *a = *(char **) first_arg;
-    char *b = *(char **) second_arg;
-    return strcmp(a, b);
-}
-
-int index_cmp(const void *first_arg, const void *second_arg) {
-    int a = *(int *) first_arg;
-    int b = *(int *) second_arg;
-    return strcmp(identifiers[a], identifiers[b]);
-}
 
 int main(void) {
     printf("%d\n", find_idents());
