@@ -89,8 +89,9 @@ int find_idents() {
             } else if (last_char == '/' && digit == '*') { // "/*" start
                 find_block_close += 1;
                 open_comment = 1;
+                change_last = 0;
             } else if (last_char == '*' && digit == '/' && find_block_close >= 1) { // "*/" close
-                if (--find_block_close == 0) {
+                if (--find_block_close == 0 && lin_comm == 0) {
                     open_comment = 0;
                 }
 
@@ -123,9 +124,9 @@ int find_idents() {
         if (change_last == 1) last_char = digit;
         else last_char = 0;
     }
-//    for (int j = 0; j < id_checked; ++j) {
-//        printf("%s, ", identifiers[j]);
-//    }
+    for (int j = 0; j < id_checked; ++j) {
+        printf("%s, ", identifiers[j]);
+    }
     return id_checked;
 
 }
