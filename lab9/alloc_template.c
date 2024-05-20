@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
+#include <limits.h>
 
 #define TAB_SIZE  1000
 #define BUF_SIZE  1000
@@ -48,38 +49,54 @@ void print_mat(int rows, int cols, int *t) {
 /////////////////////////////////////////////////////////////
 
 int read_ints_from_line(char *c_buf, int *int_buf) {
-}
-
-int read_int_lines_cont(int *ptr_array[]) {
     int digit;
-    int i = 0;
-    char buffer[BUF_SIZE] = {0};
-    int j = 0;
-    while ((digit = getc(stdin)) != EOF) {
-        if (digit != '\n') {
-            buffer[i] = (char) digit;
-            i++;
-//            printf("%c",(char)digit);
-        } else {
-//            buffor[i] = '\0';
-//            i++;
-            ptr_array[j] = malloc(i * sizeof(char));
-            memcpy(ptr_array[j], buffer, i);
+    int i = 0, j = 0;
+    while ((digit = getc(stdin)) != EOF && digit != '\n') {
+        if (digit == ' ') {
+            int_buf[j] = atoi(c_buf);
             j++;
+//            printf("%d ", atoi(c_buf));
+
+            memset(c_buf, 0, BUF_SIZE);
             i = 0;
-//            printf("\n");
+        } else {
+            c_buf[i] = (char) digit;
+            i++;
         }
     }
     if (i > 0) {
-        ptr_array[j] = malloc(i * sizeof(char));
-        memcpy(ptr_array[j], buffer, i);
+        int_buf[j] = atoi(c_buf);
         j++;
+//        printf("%d ", atoi(c_buf));
+        memset(c_buf, 0, BUF_SIZE);
     }
+    int_buf[j++] = INT_MAX;
+
+//    printf("\n");
     return j;
 }
 
+int read_int_lines_cont(int *ptr_array[]) {
+    int i = 0;
+    char c_buffer[BUF_SIZE] = {0};
+    int i_buffer[BUF_SIZE] = {0};
+    while (!feof(stdin)) {
+        int len = read_ints_from_line(c_buffer, i_buffer);
+        ptr_array[i] = malloc(len * sizeof(int));
+        memcpy(ptr_array[i], i_buffer, len * sizeof(int));
+        i++;
+    }
+    memset(c_buffer, 0, BUF_SIZE);
+    memset(i_buffer, 0, BUF_SIZE * sizeof(int));
+    return i;
+}
+
 void write_int_line_cont(int *ptr_array[], int n) {
-    printf("%s", ptr_array[n]);
+    int i = 0;
+    while (ptr_array[n][i] != INT_MAX) {
+        printf("%d ", ptr_array[n][i]);
+        i++;
+    }
 }
 
 // 3
@@ -132,37 +149,54 @@ typedef struct {
 } line_type;
 
 int read_int_lines(line_type lines_array[]) {
-    char buffer[BUF_SIZE] = {0};
-    int i = 0, j = 0;
-    int digit;
-    int sum = 0;
+    char c_buffer[BUF_SIZE] = {0};
+    int i_buffer[BUF_SIZE] = {0};
+    int cnt = 0;
     line_type x;
-    while ((digit = getc(stdin)) != EOF) {
-        if (digit == ' ') {
-            sum += atoi(buffer);
-
-        } else if (digit != '\n') {
-            buffer[i] = digit;
-            i++;
-            
-        } else {
-            x.len = i;
-z
-
+    while (!feof(stdin)) {
+        x.len = read_ints_from_line(c_buffer, i_buffer) - 1;
+        x.values = malloc(x.len * sizeof(int));
+        memcpy(x.values, i_buffer, x.len * sizeof(int));
+        int sum = 0;
+        for (int i = 0; i < x.len; ++i) {
+            sum += i_buffer[i];
         }
+        x.average = (double) sum / x.len;
+        lines_array[cnt] = x;
+        cnt++;
+
+        memset(c_buffer, 0, BUF_SIZE);
+        memset(i_buffer, 0, BUF_SIZE * sizeof(int));
+//        for (int i = 0; i < x.len; ++i) {
+//            printf("%d ",x.values[i]);
+//        }
+//        printf("\n%d %f\n\n", x.len, x.average);
+
     }
+    return cnt;
 }
 
 void write_int_line(line_type lines_array[], int n) {
+    line_type x = lines_array[n];
+    for (int i = 0; i < x.len; ++i) {
+        printf("%d ", x.values[i]);
+    }
+    printf("\n%.2f", x.average);
 }
 
 void delete_int_lines(line_type array[], int line_count) {
 }
 
 int cmp(const void *a, const void *b) {
+    line_type *x = (line_type*)a;
+    line_type *y = (line_type*)b;
+    if (x->average < y->average) return -1;
+    if (x->average > y->average) return 1;
+    else return 0;
 }
 
 void sort_by_average(line_type lines_array[], int line_count) {
+    qsort(lines_array,line_count,sizeof(line_type),cmp);
 }
 
 // 5
