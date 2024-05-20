@@ -188,15 +188,15 @@ void delete_int_lines(line_type array[], int line_count) {
 }
 
 int cmp(const void *a, const void *b) {
-    line_type *x = (line_type*)a;
-    line_type *y = (line_type*)b;
+    line_type *x = (line_type *) a;
+    line_type *y = (line_type *) b;
     if (x->average < y->average) return -1;
     if (x->average > y->average) return 1;
     else return 0;
 }
 
 void sort_by_average(line_type lines_array[], int line_count) {
-    qsort(lines_array,line_count,sizeof(line_type),cmp);
+    qsort(lines_array, line_count, sizeof(line_type), cmp);
 }
 
 // 5
@@ -207,22 +207,56 @@ typedef struct {
 } triplet;
 
 int read_sparse(triplet *triplet_array, int n_triplets) {
+    for (int i = 0; i < n_triplets; ++i) {
+        scanf("%d", &triplet_array[i].r);
+        scanf("%d", &triplet_array[i].c);
+        scanf("%d", &triplet_array[i].v);
+    }
+    return n_triplets;
 }
 
 int cmp_triplets(const void *t1, const void *t2) {
+    triplet *x = (triplet *) t1;
+    triplet *y = (triplet *) t2;
+    if (x->r < y->r) return -1;
+    if (x->r > y->r) return 1;
+    if (x->c < y->c) return -1;
+    if (x->c > y->c) return 1;
+    return 0;
+
 }
 
 void make_CSR(triplet *triplet_array, int n_triplets, int rows, int *V, int *C, int *R) {
+    qsort(triplet_array, n_triplets, sizeof(triplet), cmp_triplets);
+    memset(R, 0, (rows + 1) * sizeof(triplet));
+    for (int i = 0; i < n_triplets; i++) {
+        C[i] = triplet_array[i].c;
+        V[i] = triplet_array[i].v;
+        for (int k = triplet_array[i].r + 1; k < rows + 1; k++)
+            R[k] += 1;
+    }
 }
 
-void multiply_by_vector(int rows, const int *V, const int *C, const int *R,
-                        const int *x, int *y) {
+void multiply_by_vector(int rows, const int *V, const int *C, const int *R, const int *x, int *y) {
+    for (int i = 0; i < rows; i++) {
+        y[i] = 0;
+        for (int j = R[i]; j <= R[i + 1] - 1; j++) {
+            y[i] += V[j] * x[C[j]];
+        }
+    }
 }
 
 void read_vector(int *v, int n) {
+    for(int i = 0; i < n; i++){
+        scanf("%i", &v[i]);
+    }
 }
 
 void write_vector(int *v, int n) {
+    for(int i = 0; i < n; i++)
+        printf("%i ", v[i]);
+
+    printf("\n");
 }
 
 // auxiliary
